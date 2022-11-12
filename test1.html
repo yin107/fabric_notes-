@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+</head>
+<body>
+	<input type="color">
+	<p>我是一个颜色的显示</p>
+	<script>
+		let input=document.querySelector('input')
+		let p=document.querySelector('p')
+		input.oninput=function(){//每次颜色更改都会触发input事件
+			console.log('正在选色中');
+		}
+		input.onchange=function(e){//用户关闭选色器之后就会触发change事件
+console.log(e.target.value);
+p.style.color=e.target.value
+		}
+	</script>
+</body>
+</html>

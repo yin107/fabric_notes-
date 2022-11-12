@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<style>
+	#canvas{
+		border:1px solid black
+	}
+	</style>
+</head>
+<body>
+	<canvas id="canvas"></canvas>
+	<input type="file" accept="image/png, image/jpeg, image/gif, image/jpg" id="input">
+	<script src='./fabricdemo4.js'></script>
+	<script>
+		fabric.Object.prototype.objectCaching=true
+		let canvas=new fabric.Canvas('canvas',{
+			width:400,
+			height:300,
+			isDrawingMode:true,//开启绘画模式
+			// freeDrawingBrush:new fabric.PencilBrush({
+			// 	decimate:8,})
+		})
+let pencilBrush=new fabric.PencilBrush(canvas)//创建铅笔  需要传入canvas
+pencilBrush.initialize(canvas)//初始化铅笔
+canvas.freeDrawingBrush=pencilBrush//将画笔设置为铅笔
+pencilBrush.color='red'//设置铅笔的颜色
+pencilBrush.decimate=8 //修改拐角的平滑度，数值越大就越平滑
+
+canvas.on('before:path:created',function(opt){
+	var path=opt.path//获取整个对象
+	var pathInfo=fabric.util.getPathSegmentsInfo(path.path)//获取路径 M L 等等 并且对路径进行了解析
+path.segmentsInfo=pathInfo//添加变化的路径属性
+var pathLength=pathInfo[pathInfo.length-1].length//获取所绘制路径的总长度
+var text='this is a demo, today is 2022-11-12'
+var fontSize=2.5*pathLength/text.length
+var text=new fabric.Text(text,{
+	fontSize:fontSize,
+	path:path,//文字的路径
+	top:path.top,
+	left:path.left
+})
+canvas.add(text)
+})
+canvas.on('path:created',function(opt){//路线生成完毕时候触发
+	canvas.remove(opt.path)
+})
+
+
+
+		//将图片添加到canvas中
+let input=document.querySelector('#input')
+input.addEventListener('input',function(e){
+	new Promise((resolve,reject)=>{
+		let reader=new FileReader()
+reader.onloadend=function(e){
+	resolve(e.target.result)
+}
+reader.readAsDataURL(e.target.files[0])
+	}).then(resolve=>{//是一个base64格式的字符串
+		let Base64Prefix='data:image/png;base64,'
+		let data=atob(resolve.startsWith(Base64Prefix)?resolve.substring(Base64Prefix.length):resolve)//对base64格式的字符串进行解码
+		fabric.Image.fromURL(resolve,img=>{
+			canvas.add(img).renderAll()
+		},{crossOrigin:'anonymous'})
+		//const img=new Image()
+	//	img.src=resolve
+	//	const img1=document.createElement('img')  
+      //  img1.src=resolve
+		//canvas.add(new fabric.Image(img1))
+	//	const myctx=canvas.getContext('2d')
+		// img.onload=()=>{
+		// 	myctx.drawImage(img,0,0,300,150)
+		// }
+	})
+})
+	</script>
+</body>
+</html>
